@@ -8,7 +8,7 @@ const Pictures = props => {
       <img
         key={idx}
         src={picture}
-        class='photo'
+        className='photo'
         alt='The screen capture will appear in this box.'
       />
     );

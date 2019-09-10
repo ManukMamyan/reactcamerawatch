@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 
 import Pictures from './components/Pictures';
+import { takePicture } from './store/actions/takePicture';
 import './App.css';
 
 class App extends Component {
@@ -12,8 +14,7 @@ class App extends Component {
     this.state = {
       width: 320,
       height: 0,
-      streaming: false,
-      pictures: []
+      streaming: false
     };
   }
 
@@ -26,7 +27,7 @@ class App extends Component {
         video.srcObject = stream;
         video.play();
       })
-      .catch(function(err) {
+      .catch(err => {
         console.log('An error occurred: ' + err);
       });
   }
@@ -59,23 +60,19 @@ class App extends Component {
   takePicture = () => {
     const video = this.videoRef.current;
     const canvas = this.canvasRef.current;
-    const { height, width, pictures } = this.state;
+    const { height, width } = this.state;
 
     const context = canvas.getContext('2d');
-
     canvas.width = width;
     canvas.height = height;
     context.drawImage(video, 0, 0, width, height);
-    const data = canvas.toDataURL('image/png');
-    const newPictures = [...pictures, data];
+    const picture = canvas.toDataURL('image/png');
 
-    this.setState({
-      pictures: newPictures
-    });
+    this.props.onTakePicture(picture);
   };
 
   render() {
-    const { pictures } = this.state;
+    const { pictures } = this.props;
 
     return (
       <div className='contentarea'>
@@ -96,4 +93,20 @@ class App extends Component {
   }
 }
 
-export default App;
+const mapStateToProps = state => {
+  return {
+    pictures: state.pictures
+  };
+};
+
+const mapDispatchToProps = dispatch => {
+  return {
+    onTakePicture: picture =>
+      dispatch(takePicture(picture))
+  };
+};
+
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(App);
